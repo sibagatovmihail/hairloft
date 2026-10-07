@@ -1,0 +1,5 @@
+.DS_Store
+.playwright-mcp/
+tools/fonts/
+.vscode/
+CLAUDE.md
