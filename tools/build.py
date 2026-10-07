@@ -17,7 +17,7 @@ HERO = Path.home() / "Projekte/_icons/heroicons/24"
 PAGES = ["termin.html", "karriere.html", "impressum.html", "datenschutz.html"]
 PARTIALS = ["sprite", "header", "footer"]
 ICONS = [
-    "phone", "arrow-right", "arrow-up-right", "arrow-long-right", "map-pin", "clock", "check", "x-mark",
+    "phone", "paper-clip", "document-text", "arrow-right", "arrow-up-right", "arrow-long-right", "map-pin", "clock", "check", "x-mark",
     "chevron-left", "chevron-right", "calendar-days", "envelope", "sparkles", "heart", "academic-cap",
     "banknotes", "user-group", "arrow-path", "scissors", "sun", "check-badge", "globe-europe-africa",
     "chat-bubble-left-right", "camera",

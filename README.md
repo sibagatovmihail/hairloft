@@ -35,11 +35,12 @@ Stellen-Post vom 28.08.2026 und die Fotos.
   wird der Versand nur simuliert.
 - **Preise:** nicht bekannt, daher keine Preisliste. Der Text verweist auf die Beratung.
 - **Texte, die wir formuliert haben** (bitte bestätigen oder korrigieren): Kurzbeschreibungen der Techniken, die drei
-  Sätze zu "Green HairLoft", der Bewerbungsablauf in drei Schritten, "Kein Anschreiben, kein Lebenslauf",
+  Sätze zu "Green HairLoft", der Bewerbungsablauf in drei Schritten, "Kein Anschreiben nötig, Unterlagen optional",
   die Erfahrungsstufen im Bewerbungsformular.
 - **Barrierefreiheit** (Parkplatz, Sitzgelegenheiten, genderneutrale Toilette): aus dem Google-Profil, bitte bestätigen.
 - **Fotos:** aus Instagram (max. 640 px). Für die fertige Seite Originale verwenden, außerdem Fotos vom Innenraum.
 - **Impressum und Datenschutz:** Inhaber, Rechtsform, USt-ID, Kammer, Hoster ergänzen und rechtlich prüfen.
+- **Bewerbung mit Anhängen:** Das Formular hat ein eigenes Dateifeld (bis zu 3 Dateien, je 5 MB; PDF, JPG, PNG, Word; Feldname `attachment`). Web3Forms nimmt Anhänge nur im Bezahltarif an, Limits und Mehrfach-Upload vor dem Livegang testen. Alternative: eigene SMTP-Funktion. Bewerbungsunterlagen sind besonders sensibel: Auftragsverarbeitung und Datenschutztext (Abschnitt Bewerbungen) mit dem Salon abstimmen.
 - `noindex` auf allen Seiten entfernen, sobald die Seite live geht.
 
 ## Schriften

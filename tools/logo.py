@@ -113,7 +113,7 @@ def build():
     pad = 4
     box = (-pad, -9 - pad, by_right + 2 * pad, total_h + 9 + 2 * pad)
     (OUT / "logo.svg").write_text(svg(wm + by, box, divider))
-    (OUT / "logo-ink.svg").write_text(svg(wm + by, box, divider, gradient=False, fill="#1E1411"))
+    (OUT / "logo-ink.svg").write_text(svg(wm + by, box, divider, gradient=False, fill="#54392D"))
 
     # framed lockup with the tagline (footer), as on the salon's posts
     fx0, fy0, fx1, fy1 = -62.0, -72.0, by_right + 62, total_h + 54
@@ -129,7 +129,7 @@ def build():
     # favicon: the wordmark alone on espresso
     side = wm_right + 2 * 58
     box = (-58, (total_h - side) / 2, side, side)
-    (OUT / "favicon.svg").write_text(svg(wm, box, bg="#1E1411"))
+    (OUT / "favicon.svg").write_text(svg(wm, box, bg="#54392D"))
     print("logo: logo.svg, logo-ink.svg, logo-framed.svg, favicon.svg")
 
 

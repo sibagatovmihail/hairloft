@@ -25,18 +25,22 @@
 
 /* ---------- Tokens ---------- */
 :root {
-  /* palette = the logo: rose gold on espresso, plus white and washed tints */
-  --paper: #fff;
-  --linen: #f8f3ee;
-  --sand: #efe6dc;
-  --blush: #f2dfd2;
-  --rose: #e2b8a0;
-  --copper: #b4764f;
-  --copper-deep: #8a5335;
-  --ink: #1e1411;
-  --ink-2: #5c4b43;
-  --ink-3: #8b7a71;
-  --line: #2e211c;
+  /* palette (07.10.2026, client-side picks): Pantone 11-4302 TCX Cannoli Cream, 15-0523 TCX Winter Pear,
+     19-1218 TCX Potting Soil, 19-2223 TSX Plummed Depths. Pantone hides the Plummed Depths hex behind a login, so
+     --plum is an ESTIMATE (deep wine); swap in the real value there. Token names kept from the rose-gold version:
+     --rose = Winter Pear (buttons, labels on dark), --blush = Winter Pear wash (highlights), --copper = plum. */
+  --paper: #f0efe2;      /* Cannoli Cream */
+  --linen: #f7f6ee;      /* lighter cream */
+  --sand: #e4e3d0;      /* deeper cream */
+  --blush: #d6d8b9;      /* Winter Pear wash */
+  --rose: #b0b487;       /* Winter Pear */
+  --copper: #6b2140;     /* Plummed Depths (estimate) */
+  --copper-deep: #561a33;
+  --plum: #6b2140;
+  --ink: #54392d;        /* Potting Soil */
+  --ink-2: #6f5a4f;
+  --ink-3: #78675d;
+  --line: #54392d;
   --ok: #2e7d4f;
   --err: #b3261e;
 
@@ -219,7 +223,9 @@ h3 { font-size: var(--t-h3); --lh: 1.1; }
 a.cell { transition: background-color 0.2s; }
 a.cell:hover { background: var(--linen); }
 a.cell--blush:hover { background: var(--rose); }
-a.cell--ink:hover { background: #33241e; }
+a.cell--ink:hover { background: #6a4a3c; }
+.cell--plum { background: var(--plum); color: #fff; }
+.cell--plum .label, .cell--plum .small, .cell--plum .lead { color: var(--rose); }
 .go { display: inline-flex; align-items: center; gap: 0.5rem; font-size: var(--t-small); font-weight: 500; }
 .go .i { width: 1.125rem; height: 1.125rem; transition: transform 0.2s; }
 a.cell:hover .go .i { transform: translateX(0.25rem); }
@@ -396,7 +402,7 @@ a.big-link:hover { color: var(--copper-deep); }
 .big-link.num, .stat.num { font-family: var(--f-body); font-variation-settings: normal; font-weight: 500; letter-spacing: -0.03em; }
 .addr { font-size: var(--t-h3); font-weight: 500; --lh: 1.3; letter-spacing: -0.015em; }
 .cta { padding: var(--head-y) var(--pad-lg); align-items: flex-start; gap: var(--pad); }
-.cta h2 .hl { background-image: linear-gradient(var(--copper-deep), var(--copper-deep)); }
+.cta h2 .hl { background-image: linear-gradient(var(--ink), var(--ink)); }
 .teaser { min-height: 14rem; }
 
 /* ---------- Footer ---------- */
@@ -409,10 +415,42 @@ a.big-link:hover { color: var(--copper-deep); }
 .foot__base nav { display: flex; gap: 1.25rem; }
 .foot__base a:hover { color: var(--ink); }
 
+/* ---------- File attachments (custom picker; the native input stays hidden but submits) ---------- */
+.files__native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden; }
+.drop {
+  display: flex; align-items: center; gap: 0.75rem; width: 100%; height: var(--ctl-h); padding: 0 1rem;
+  background: var(--paper); color: var(--ink); border: 1px solid var(--line); text-align: left; cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.drop .i { width: 1.125rem; height: 1.125rem; flex: none; color: var(--copper); }
+.drop__cta { font-weight: 500; }
+.drop__or { color: var(--ink-2); font-size: var(--t-small); margin-left: auto; }
+.drop:hover, .drop.is-drag { background: var(--blush); }
+.drop:focus-visible { outline: none; box-shadow: inset 0 0 0 1px var(--copper); border-color: var(--copper); }
+.drop[disabled] { opacity: 0.6; cursor: default; background: var(--paper); }
+.files__hint { font-size: 0.8125rem; color: var(--ink-2); --lh: 1.4; }
+.files__list { display: flex; flex-direction: column; }
+.files__list:empty { display: none; }
+.file {
+  display: flex; align-items: center; gap: 0.75rem; height: 3rem; padding-left: 1rem;
+  border: 1px solid var(--line); background: var(--linen); font-size: var(--t-small);
+}
+.file + .file { margin-top: -1px; }
+.file .i { width: 1.125rem; height: 1.125rem; flex: none; color: var(--ink-2); }
+.file__name { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 500; }
+.file__size { flex: none; color: var(--ink-2); }
+.file__x {
+  flex: none; display: grid; place-items: center; width: 3rem; height: 100%; margin-left: 0.25rem;
+  border-left: 1px solid var(--line); cursor: pointer; transition: background-color 0.2s;
+}
+.file__x .i { color: var(--ink); }
+.file__x:hover { background: var(--blush); }
+.file__x:focus-visible { outline: none; box-shadow: inset 0 0 0 1px var(--copper); }
+
 /* ---------- Page heads (inner pages) ---------- */
 .page-head { padding: var(--head-y) var(--pad-lg); gap: var(--pad); justify-content: center; }
 .steps { display: flex; flex-direction: column; counter-reset: step; }
-.steps li { display: flex; gap: 1rem; padding: 0.875rem 0; border-top: 1px solid rgba(46, 33, 28, 0.2); }
+.steps li { display: flex; gap: 1rem; padding: 0.875rem 0; border-top: 1px solid rgba(84, 57, 45, 0.2); }
 .steps li:first-child { border-top: 0; padding-top: 0; }
 .steps li:last-child { padding-bottom: 0; }
 .steps li::before { counter-increment: step; content: "0" counter(step); font-size: var(--t-label); font-weight: 500; letter-spacing: 0.14em; color: var(--copper-deep); padding-top: 0.25rem; }
@@ -527,7 +565,7 @@ textarea.input { height: auto; min-height: 7.5rem; padding-block: 0.875rem; resi
 /* ---------- Dialog ---------- */
 .overlay {
   position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 1rem;
-  background: rgba(30, 20, 17, 0.6);
+  background: rgba(52, 34, 27, 0.6);
   visibility: hidden; opacity: 0; transition: opacity 0.22s, visibility 0s linear 0.22s;
 }
 .overlay.is-open { visibility: visible; opacity: 1; transition: opacity 0.22s, visibility 0s; }
@@ -632,7 +670,7 @@ textarea.input { height: auto; min-height: 7.5rem; padding-block: 0.875rem; resi
   position: fixed; left: max(.75rem, env(safe-area-inset-left)); bottom: calc(.75rem + env(safe-area-inset-bottom, 0px)); z-index: 80;
   display: inline-flex; align-items: center; gap: .5rem;
   height: 2rem; padding: 0 .85rem 0 .7rem; margin: 0;
-  background: rgba(30, 20, 17, .86); color: var(--linen);
+  background: rgba(84, 57, 45, .92); color: var(--linen);
   font-size: .75rem; font-weight: 600; letter-spacing: .02em; white-space: nowrap;
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   pointer-events: none; user-select: none; -webkit-user-select: none;
@@ -640,3 +678,4 @@ textarea.input { height: auto; min-height: 7.5rem; padding-block: 0.875rem; resi
 .draft-tag__dot { width: 7px; height: 7px; background: var(--rose); }
 html.nav-open .draft-tag { display: none; }
 .foot__credit { padding-bottom: 3.5rem; }
+@media (hover: none) { .drop__or { display: none; } }

@@ -281,9 +281,84 @@
       .then(function (data) { return !!(data && data.success); });
   }
 
+  /* ---------- File attachments (custom picker over a hidden native input, so the form still submits) ---------- */
+  var FILE_TYPES = { pdf: 1, jpg: 1, jpeg: 1, png: 1, webp: 1, doc: 1, docx: 1 };
+
+  function fmtSize(b) { return b < 1048576 ? Math.max(1, Math.round(b / 1024)) + ' KB' : (b / 1048576).toFixed(1).replace('.', ',') + ' MB'; }
+
+  function initFiles(form) {
+    form.querySelectorAll('[data-files]').forEach(function (box) {
+      var input = box.querySelector('input[type="file"]');
+      var drop = box.querySelector('.drop');
+      var list = box.querySelector('.files__list');
+      var err = box.querySelector('.err');
+      var max = +box.getAttribute('data-max') || 3;
+      var maxBytes = (+box.getAttribute('data-max-mb') || 5) * 1048576;
+      var files = [];
+      var canSync = typeof DataTransfer !== 'undefined';
+
+      function ext(f) { var m = /\.([a-z0-9]+)$/i.exec(f.name); return m ? m[1].toLowerCase() : ''; }
+      function say(msg) { err.textContent = msg || ''; box.classList.toggle('has-error', !!msg); }
+
+      function sync() {
+        if (!canSync) return;
+        try { var dt = new DataTransfer(); files.forEach(function (f) { dt.items.add(f); }); input.files = dt.files; } catch (e) { canSync = false; }
+      }
+
+      function render() {
+        list.textContent = '';
+        files.forEach(function (f, i) {
+          var li = document.createElement('li');
+          li.className = 'file';
+          li.innerHTML = '<svg class="i" aria-hidden="true"><use href="#i-document-text"/></svg><span class="file__name"></span><span class="file__size"></span>' +
+            '<button class="file__x" type="button"><svg class="i" aria-hidden="true"><use href="#i-x-mark"/></svg></button>';
+          li.querySelector('.file__name').textContent = f.name;
+          li.querySelector('.file__size').textContent = fmtSize(f.size);
+          var x = li.querySelector('.file__x');
+          x.setAttribute('aria-label', f.name + ' entfernen');
+          x.addEventListener('click', function () {
+            files.splice(i, 1); sync(); say(''); render();
+            drop.focus();
+          });
+          list.appendChild(li);
+        });
+        box.classList.toggle('is-full', files.length >= max);
+        drop.disabled = files.length >= max;
+      }
+
+      function add(picked) {
+        var problem = '';
+        Array.prototype.forEach.call(picked, function (f) {
+          if (files.length >= max) { problem = 'Es sind höchstens ' + max + ' Dateien möglich.'; return; }
+          if (!FILE_TYPES[ext(f)]) { problem = f.name + ': Bitte PDF, JPG, PNG oder Word senden.'; return; }
+          if (f.size > maxBytes) { problem = f.name + ' ist größer als ' + (maxBytes / 1048576) + ' MB.'; return; }
+          if (files.some(function (g) { return g.name === f.name && g.size === f.size; })) return;
+          files.push(f);
+        });
+        sync(); say(problem); render();
+      }
+
+      drop.addEventListener('click', function () { input.click(); });
+      input.addEventListener('change', function () {
+        // without DataTransfer the input keeps only the latest pick, so mirror it instead of merging
+        if (canSync) { add(input.files); } else { files = []; add(input.files); }
+      });
+      ['dragenter', 'dragover'].forEach(function (t) {
+        drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.add('is-drag'); });
+      });
+      ['dragleave', 'drop'].forEach(function (t) {
+        drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.remove('is-drag'); });
+      });
+      drop.addEventListener('drop', function (e) { if (e.dataTransfer && e.dataTransfer.files.length) add(e.dataTransfer.files); });
+      form.addEventListener('reset', function () { setTimeout(function () { files = []; say(''); render(); }, 0); });
+      render();
+    });
+  }
+
   function initForms() {
     document.querySelectorAll('form[data-form]').forEach(function (form) {
       form.setAttribute('novalidate', '');
+      initFiles(form);
       form.addEventListener('input', function (e) {
         var t = e.target;
         if (t.classList.contains('is-invalid') && fieldOk(t)) { t.classList.remove('is-invalid'); t.setAttribute('aria-invalid', 'false'); }
