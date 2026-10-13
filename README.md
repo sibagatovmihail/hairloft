@@ -8,8 +8,14 @@ Statisches HTML/CSS/JS ohne Build-Schritt.
 | Seite | Inhalt |
 |---|---|
 | `index.html` | Startseite: Leistungen, Ergebnisse, Salon, Stimmen, Besuch |
-| `termin.html` | Terminanfrage: Leistung, Stylist, Kalender, Wunschzeit, Kontakt |
+| `termin.html` | Einstieg in die Terminanfrage (Direktlink, auch mit `?leistung=glossing`) |
 | `karriere.html` | Recruiting: Vorteile, Ablauf, Kurzbewerbung |
+
+Die Terminanfrage ist ein Fenster in fünf Schritten (Leistung, Tag, Uhrzeit, Kontakt, Senden) und öffnet sich auf jeder
+Seite über „Termin anfragen". Die Kurzbewerbung läuft genauso in vier Schritten (Über dich, Kontakt, Unterlagen, Senden).
+
+| Seite | Inhalt |
+|---|---|
 | `impressum.html`, `datenschutz.html` | Rechtliches (Platzhalter markiert) |
 
 ## Lokal ansehen
@@ -18,7 +24,7 @@ Statisches HTML/CSS/JS ohne Build-Schritt.
 python3 -m http.server 8791
 ```
 
-Gemeinsame Blöcke (Header, Footer, Icon-Sprite) nur in `index.html` ändern, danach `python3 tools/build.py`.
+Gemeinsame Blöcke (Header, Footer, Icon-Sprite, Terminanfrage) nur in `index.html` ändern, danach `python3 tools/build.py`.
 
 ## Woher die Inhalte stammen
 
@@ -31,8 +37,10 @@ Stellen-Post vom 28.08.2026 und die Fotos.
 
 - **Terminvergabe:** Der Salon vergibt Termine bisher nur telefonisch oder vor Ort. Die Seite sendet deshalb eine
   Anfrage, die telefonisch bestätigt wird. Wunschzeiten: alle 30 Minuten, letzter Beginn eine Stunde vor Schluss.
-- **Formulare:** Web3Forms-Schlüssel eintragen (`WEB3FORMS-KEY` in `termin.html` und `karriere.html`). Bis dahin
-  wird der Versand nur simuliert.
+- **Formulare:** Web3Forms-Schlüssel eintragen (`WEB3FORMS-KEY` in der Terminanfrage in `index.html`, danach
+  `python3 tools/build.py`, und in der Kurzbewerbung in `karriere.html`). Bis dahin wird der Versand nur simuliert.
+  Vor dem Livegang entscheiden, ob stattdessen eine eigene Mail-Funktion (SMTP in der EU) genutzt wird: dann geht
+  nichts an einen Drittanbieter.
 - **Preise:** nicht bekannt, daher keine Preisliste. Der Text verweist auf die Beratung.
 - **Texte, die wir formuliert haben** (bitte bestätigen oder korrigieren): Kurzbeschreibungen der Techniken, die drei
   Sätze zu "Green HairLoft", der Bewerbungsablauf in drei Schritten, "Kein Anschreiben nötig, Unterlagen optional",

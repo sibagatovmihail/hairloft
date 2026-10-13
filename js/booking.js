@@ -1,6 +1,7 @@
-/* Terminanfrage: service preselect, calendar, time slots, live summary.
-   Uses the salon data from main.js (window.HL). The request is a wish, the salon confirms by phone,
-   so no availability is checked here: closed days, public holidays and past times are blocked. */
+/* Terminanfrage (the modal on every page): calendar and time slots of steps 2 and 3.
+   Uses the salon data from main.js (window.HL); the steps, the summary and the sending live there.
+   The request is a wish, the salon confirms by phone, so no availability is checked here: closed days,
+   public holidays and past times are blocked. */
 (function () {
   'use strict';
   var HL = window.HL;
@@ -15,7 +16,6 @@
 
   var cal = form.querySelector('[data-cal]');
   var slots = form.querySelector('[data-slots]');
-  var hint = form.querySelector('[data-slot-hint]');
   var inDate = form.elements.datum;
   var inTime = form.elements.uhrzeit;
 
@@ -170,6 +170,7 @@
   function pickDay(d) {
     picked = d;
     inDate.value = shortDate(d);
+    inDate.setAttribute('data-label', longDate(d).replace(/ \d{4}$/, ''));   // the summary reads "Donnerstag, 15. Oktober"
     cal.querySelectorAll('.cal__day[data-day]').forEach(function (b) {
       b.setAttribute('aria-pressed', String(b.dataset.day === HL.ymd(d)));
     });
@@ -178,7 +179,7 @@
     if (!possible && pickedTime !== 'flexibel') setTime('');
     renderSlots();
     clearError(cal);
-    summary();
+    changed();
   }
 
   /* ---------- Slots ---------- */
@@ -200,9 +201,6 @@
     flex.setAttribute('aria-label', 'Uhrzeit egal');
     flex.setAttribute('aria-pressed', String(pickedTime === 'flexibel'));
     slots.appendChild(flex);
-    hint.textContent = picked
-      ? 'Die Uhrzeit ist ein Wunsch. Wir sagen dir am Telefon, ob sie frei ist.'
-      : 'Wähle zuerst einen Tag.';
   }
   function nextOpen() {
     var d = new Date(today);
@@ -214,7 +212,7 @@
   }
   function setTime(t) {
     pickedTime = t;
-    inTime.value = t === 'flexibel' ? 'flexibel' : (t ? t + ' Uhr' : '');
+    inTime.value = t === 'flexibel' ? 'Uhrzeit flexibel' : (t ? t + ' Uhr' : '');
     slots.querySelectorAll('.slot').forEach(function (b) { b.setAttribute('aria-pressed', String(!!t && b.dataset.time === t)); });
   }
   slots.addEventListener('click', function (e) {
@@ -222,7 +220,7 @@
     if (!b || b.disabled) return;
     setTime(b.dataset.time);
     clearError(slots);
-    summary();
+    changed();
   });
 
   function clearError(node) {
@@ -230,32 +228,9 @@
     if (g) g.classList.remove('has-error');
   }
 
-  /* ---------- Summary ---------- */
-  function checked(name) {
-    var r = form.querySelector('input[name="' + name + '"]:checked');
-    return r ? r.value : '';
-  }
-  function summary() {
-    var values = {
-      leistung: checked('leistung'),
-      stylist: checked('stylist'),
-      datum: picked ? shortDate(picked) : '',
-      uhrzeit: pickedTime === 'flexibel' ? 'flexibel' : (pickedTime ? pickedTime + ' Uhr' : '')
-    };
-    form.querySelectorAll('[data-sum]').forEach(function (dd) {
-      var v = values[dd.getAttribute('data-sum')];
-      dd.textContent = v || 'noch offen';
-      dd.classList.toggle('is-empty', !v);
-    });
-  }
-  form.addEventListener('change', summary);
+  /* main.js keeps the running summary */
+  function changed() { form.dispatchEvent(new CustomEvent('hl:change')); }
 
-  /* the dialog shows what was requested */
-  form.addEventListener('hl:sent', function () {
-    var copy = document.querySelector('[data-sum-copy]');
-    var src = form.querySelector('.sum');
-    if (copy && src) copy.innerHTML = src.innerHTML;
-  });
   form.addEventListener('hl:reset', function () {
     picked = null;
     pickedTime = '';
@@ -264,17 +239,7 @@
     view = new Date(today.getFullYear(), today.getMonth(), 1);
     renderCal();
     renderSlots();
-    summary();
   });
-
-  /* ---------- Preselect from ?leistung=slug ---------- */
-  try {
-    var slug = new URLSearchParams(window.location.search).get('leistung');
-    if (slug) {
-      var radio = form.querySelector('input[name="leistung"][data-slug="' + slug.replace(/[^a-z0-9-]/gi, '') + '"]');
-      if (radio) radio.checked = true;
-    }
-  } catch (e) { /* no URLSearchParams: nothing preselected */ }
 
   // start in the month of the first open day
   var first = null;
@@ -286,5 +251,4 @@
 
   renderCal();
   renderSlots();
-  summary();
 })();

@@ -1,4 +1,4 @@
-/* The HairLoft by Colle & Roy: header, opening status, forms. No dependencies. */
+/* The HairLoft by Colle & Roy: header, opening status, services index, modals and the step forms. No dependencies. */
 (function () {
   'use strict';
 
@@ -10,6 +10,7 @@
   // Web3Forms key placeholder: while it is in place, forms are only simulated (draft mode)
   var KEY_PLACEHOLDER = 'WEB3FORMS-KEY';
 
+  function qsa(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function hhmm(min) { return pad(Math.floor(min / 60)) + ':' + pad(min % 60); }
   function isoDay(d) { return d.getDay() || 7; }
@@ -199,8 +200,65 @@
     });
   }
 
-  /* ---------- Dialog ---------- */
+  /* ---------- Leistungen: the name under the pointer (or the tapped one) is the one on show ---------- */
+  function initServices() {
+    var box = document.querySelector('[data-svcs]');
+    if (!box) return;
+    var items = qsa('.svc', box);
+    var stage = document.querySelector('[data-svc-stage]');
+    var wide = window.matchMedia('(min-width: 64.0625rem)');
+    var canHover = window.matchMedia('(hover: hover)');
+    var pressed = null;
+
+    function activate(li) {
+      if (li.classList.contains('is-active')) return;
+      items.forEach(function (x) {
+        var on = x === li;
+        x.classList.toggle('is-active', on);
+        var a = x.querySelector('.svc__name');
+        if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+      });
+      if (!stage) return;
+      var name = li.querySelector('.svc__name');
+      stage.querySelector('[data-svc-no]').textContent = li.querySelector('.svc__no').textContent;
+      stage.querySelector('[data-svc-title]').textContent = li.querySelector('.svc__t').textContent;
+      stage.querySelector('[data-svc-desc]').textContent = li.querySelector('.svc__more p').textContent;
+      stage.querySelector('[data-svc-link]').setAttribute('href', name.getAttribute('href'));
+    }
+    function nameOf(e) { return e.target.closest ? e.target.closest('.svc__name') : null; }
+
+    box.addEventListener('mouseover', function (e) {
+      var a = nameOf(e);
+      if (a && wide.matches && canHover.matches) activate(a.closest('.svc'));
+    });
+    box.addEventListener('focusin', function (e) {
+      var a = nameOf(e);
+      if (a && wide.matches && a.matches(':focus-visible')) activate(a.closest('.svc'));
+    });
+    // a tap first shows the service; only a click on the one already on show starts the request
+    box.addEventListener('pointerdown', function (e) {
+      var a = nameOf(e);
+      pressed = a ? { li: a.closest('.svc'), was: a.closest('.svc').classList.contains('is-active') } : null;
+    });
+    box.addEventListener('click', function (e) {
+      var a = nameOf(e);
+      if (!a) return;
+      var li = a.closest('.svc');
+      var was = pressed && pressed.li === li ? pressed.was : li.classList.contains('is-active');
+      pressed = null;
+      if (was) return;
+      e.preventDefault();
+      e.stopPropagation();
+      activate(li);
+    });
+  }
+
+  /* ---------- Modals ---------- */
   var lastFocus = null;
+  function focusable(root) {
+    return qsa('a[href], button:not([disabled]), input:not([type="hidden"]):not([disabled]):not([tabindex="-1"]), textarea, [tabindex="0"]', root)
+      .filter(function (n) { return n.getClientRects().length; });
+  }
   function openDialog(id) {
     var overlay = document.getElementById(id);
     if (!overlay || overlay.classList.contains('is-open')) return;
@@ -208,27 +266,55 @@
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
     lock();
-    var btn = overlay.querySelector('[data-close]');
-    if (btn) btn.focus();
+    var first = overlay.querySelector('.step.is-active h2') || overlay.querySelector('[data-close]');
+    if (first) first.focus({ preventScroll: true });
   }
   function closeDialog(overlay) {
     if (!overlay.classList.contains('is-open')) return;
     overlay.classList.remove('is-open');
     overlay.setAttribute('aria-hidden', 'true');
     unlock();
-    if (lastFocus && lastFocus.focus) lastFocus.focus();
+    if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    overlay.dispatchEvent(new CustomEvent('hl:closed'));
+  }
+  /* open a modal from a link; ?name=slug in the link's href preselects a choice (termin.html?leistung=glossing) */
+  function openModal(id, href) {
+    var overlay = document.getElementById(id);
+    if (!overlay) return false;
+    var q = href && href.indexOf('?') > -1 ? href.slice(href.indexOf('?') + 1).split('#')[0] : '';
+    q.split('&').forEach(function (pair) {
+      var kv = pair.split('=');
+      if (kv.length < 2) return;
+      var radio = overlay.querySelector('input[type="radio"][name="' + kv[0].replace(/[^a-z0-9_-]/gi, '') + '"][data-slug="' + kv[1].replace(/[^a-z0-9-]/gi, '') + '"]');
+      if (radio) { radio.checked = true; radio.dispatchEvent(new Event('change', { bubbles: true })); }
+    });
+    openDialog(id);
+    return true;
   }
   function initDialogs() {
-    document.querySelectorAll('.overlay').forEach(function (overlay) {
+    qsa('.overlay').forEach(function (overlay) {
       overlay.addEventListener('click', function (e) {
         if (e.target === overlay || e.target.closest('[data-close]')) closeDialog(overlay);
       });
     });
-    document.addEventListener('keydown', function (e) {
-      if (e.key !== 'Escape') return;
-      var o = document.querySelector('.overlay.is-open');
-      if (o) closeDialog(o);
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest ? e.target.closest('[data-modal]') : null;
+      if (a && openModal(a.getAttribute('data-modal'), a.getAttribute('href'))) e.preventDefault();
     });
+    document.addEventListener('keydown', function (e) {
+      var o = document.querySelector('.overlay.is-open');
+      if (!o) return;
+      if (e.key === 'Escape') { closeDialog(o); return; }
+      if (e.key !== 'Tab') return;
+      // keep the focus inside the open modal
+      var f = focusable(o);
+      if (!f.length) return;
+      var i = f.indexOf(document.activeElement);
+      if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && (i === -1 || i === f.length - 1)) { e.preventDefault(); f[0].focus(); }
+    });
+    // a link straight to a request: termin.html?leistung=glossing
+    if (/[?&]leistung=/.test(window.location.search)) openModal('book', window.location.search);
   }
 
   /* ---------- Forms ---------- */
@@ -243,24 +329,25 @@
     return true;
   }
 
-  /* returns the first invalid element (or null); only recolours, never changes the layout */
-  function validate(form) {
+  /* checks one step; returns the first invalid element (or null). Only recolours, never changes the layout */
+  function validate(scope, form) {
     var first = null;
-    form.querySelectorAll('.input').forEach(function (input) {
+    qsa('.input', scope).forEach(function (input) {
       var ok = fieldOk(input);
       input.classList.toggle('is-invalid', !ok);
       input.setAttribute('aria-invalid', String(!ok));
       if (!ok && !first) first = input;
     });
-    form.querySelectorAll('.check input[data-required]').forEach(function (box) {
+    qsa('.check input[data-required]', scope).forEach(function (box) {
       var ok = box.checked;
       box.closest('.check').classList.toggle('has-error', !ok);
       if (!ok && !first) first = box;
     });
-    form.querySelectorAll('[data-group]').forEach(function (group) {
-      var name = group.getAttribute('data-group');
-      var el = form.elements[name];
-      var ok = !!(el && (el.value !== undefined ? el.value : ''));
+    var groups = qsa('[data-group]', scope);
+    if (scope.hasAttribute('data-group')) groups.unshift(scope);
+    groups.forEach(function (group) {
+      var el = form.elements[group.getAttribute('data-group')];
+      var ok = !!(el && el.value);
       group.classList.toggle('has-error', !ok);
       if (!ok && !first) first = group;
     });
@@ -281,6 +368,36 @@
       .then(function (data) { return !!(data && data.success); });
   }
 
+  /* what has been entered so far, for the running summary and the last step */
+  function valueOf(form, name) {
+    var el = form.elements[name];
+    if (!el) return '';
+    if (el.type === 'file') {
+      var n = el.files ? el.files.length : 0;
+      return n ? n + (n === 1 ? ' Datei' : ' Dateien') : '';
+    }
+    if (!el.tagName && el.length !== undefined) {   // radio group
+      for (var k = 0; k < el.length; k++) if (el[k].checked) return el[k].getAttribute('data-label') || el[k].value;
+      return '';
+    }
+    var v = (el.value || '').trim();
+    return v && el.getAttribute('data-label') || v;
+  }
+  function summary(form) {
+    qsa('[data-sum]', form).forEach(function (node) {
+      var v = valueOf(form, node.getAttribute('data-sum'));
+      var need = node.getAttribute('data-with');           // only worth showing next to another answer
+      if (need && !valueOf(form, need)) v = '';
+      node.textContent = v || node.getAttribute('data-empty') || '';
+      node.classList.toggle('is-empty', !v);
+    });
+    var strip = form.querySelector('.modal__sum');
+    if (strip) {
+      strip.classList.toggle('is-blank', !strip.querySelector('[data-sum]:not(.is-empty)'));
+      strip.classList.remove('is-error');
+    }
+  }
+
   /* ---------- File attachments (custom picker over a hidden native input, so the form still submits) ---------- */
   var FILE_TYPES = { pdf: 1, jpg: 1, jpeg: 1, png: 1, webp: 1, doc: 1, docx: 1 };
 
@@ -298,7 +415,7 @@
       var canSync = typeof DataTransfer !== 'undefined';
 
       function ext(f) { var m = /\.([a-z0-9]+)$/i.exec(f.name); return m ? m[1].toLowerCase() : ''; }
-      function say(msg) { err.textContent = msg || ''; box.classList.toggle('has-error', !!msg); }
+      function say(msg) { err.textContent = msg || ''; }
 
       function sync() {
         if (!canSync) return;
@@ -318,12 +435,13 @@
           x.setAttribute('aria-label', f.name + ' entfernen');
           x.addEventListener('click', function () {
             files.splice(i, 1); sync(); say(''); render();
-            drop.focus();
+            if (drop.disabled) form.querySelector('[data-wz-next]').focus(); else drop.focus();
           });
           list.appendChild(li);
         });
         box.classList.toggle('is-full', files.length >= max);
         drop.disabled = files.length >= max;
+        form.dispatchEvent(new CustomEvent('hl:change'));
       }
 
       function add(picked) {
@@ -355,57 +473,120 @@
     });
   }
 
-  function initForms() {
-    document.querySelectorAll('form[data-form]').forEach(function (form) {
+  /* ---------- Requests in steps: one question per step, progress on top, the summary below ---------- */
+  function initWizards() {
+    qsa('form[data-wizard]').forEach(function (form) {
+      var overlay = form.closest('.overlay');
+      var steps = qsa('[data-step]', form);
+      var segs = qsa('.prog li', form);
+      var donePanel = form.querySelector('[data-wz-done]');
+      var body = form.querySelector('.modal__body');
+      var count = form.querySelector('[data-wz-count]');
+      var strip = form.querySelector('.modal__sum');
+      var back = form.querySelector('[data-wz-back]');
+      var next = form.querySelector('[data-wz-next]');
+      var label = next.querySelector('span');
+      var total = steps.length;
+      var cur = 0, done = false, busy = false;
+
       form.setAttribute('novalidate', '');
       initFiles(form);
+
+      function paint() {
+        steps.forEach(function (s, k) { s.classList.toggle('is-active', !done && k === cur); });
+        donePanel.classList.toggle('is-active', done);
+        segs.forEach(function (li, k) {
+          var btn = li.querySelector('button');
+          li.classList.toggle('is-done', done || k < cur);
+          li.classList.toggle('is-now', !done && k === cur);
+          btn.disabled = done || k >= cur;            // only steps already answered can be reopened
+          if (!done && k === cur) btn.setAttribute('aria-current', 'step'); else btn.removeAttribute('aria-current');
+        });
+        form.classList.toggle('is-first', cur === 0);
+        form.classList.toggle('is-done', done);
+        count.textContent = done ? 'Gesendet' : 'Schritt ' + (cur + 1) + ' von ' + total;
+        label.textContent = done ? 'Schließen' : cur === total - 1 ? next.getAttribute('data-send') : 'Weiter';
+      }
+      function go(n, dir, quiet) {
+        cur = n;
+        form.setAttribute('data-dir', dir);
+        paint();
+        body.scrollTop = 0;
+        form.dispatchEvent(new CustomEvent('hl:step', { detail: { index: cur } }));
+        var h = (done ? donePanel : steps[cur]).querySelector('h2');
+        if (h && !quiet) h.focus({ preventScroll: true });
+      }
+      /* where the problem is: its step, the field in view and focused */
+      function point(bad) {
+        var el = bad.matches('input, textarea') ? bad : bad.querySelector('.step__a input, .step__a button:not([disabled])');
+        if (el) {
+          if (el.scrollIntoView) el.scrollIntoView({ block: 'nearest' });
+          el.focus({ preventScroll: true });
+        }
+      }
+
       form.addEventListener('input', function (e) {
         var t = e.target;
         if (t.classList.contains('is-invalid') && fieldOk(t)) { t.classList.remove('is-invalid'); t.setAttribute('aria-invalid', 'false'); }
+        summary(form);
       });
       form.addEventListener('change', function (e) {
         var c = e.target.closest('.check');
         if (c && e.target.checked) c.classList.remove('has-error');
         var g = e.target.closest('[data-group]');
         if (g) g.classList.remove('has-error');
+        summary(form);
       });
+      form.addEventListener('hl:change', function () { summary(form); });
+
+      back.addEventListener('click', function () { if (cur > 0 && !busy && !done) go(cur - 1, 'back'); });
+      segs.forEach(function (li, k) {
+        li.querySelector('button').addEventListener('click', function () { if (k < cur && !busy && !done) go(k, 'back'); });
+      });
+
       form.addEventListener('submit', function (e) {
         e.preventDefault();
-        var bad = validate(form);
-        if (bad) {
-          var target = bad.closest('.cell') || bad;
-          var top = target.getBoundingClientRect().top;
-          if (top < 80 || top > window.innerHeight * 0.6) {
-            window.scrollTo({ top: window.scrollY + top - 96, behavior: 'smooth' });
-          }
-          if (bad.focus && bad.matches('input, textarea')) bad.focus({ preventScroll: true });
-          return;
+        if (busy) return;
+        if (done) { closeDialog(overlay); return; }
+        var bad = validate(steps[cur], form);
+        if (bad) { point(bad); return; }
+        if (cur < total - 1) { go(cur + 1, 'fwd'); return; }
+        for (var k = 0; k < total; k++) {
+          bad = validate(steps[k], form);
+          if (bad) { go(k, 'back', true); point(bad); return; }
         }
-        var btn = form.querySelector('[type="submit"]');
-        var label = btn.querySelector('span');
-        var original = label.textContent;
+        busy = true;
+        next.disabled = back.disabled = true;
         label.textContent = 'Wird gesendet …';
-        btn.disabled = true;
         send(form)
           .then(function (ok) {
             if (!ok) throw new Error('send');
-            form.dispatchEvent(new CustomEvent('hl:sent'));
-            form.reset();
-            form.dispatchEvent(new CustomEvent('hl:reset'));
-            var id = form.getAttribute('data-success') || 'success';
-            var overlay = document.getElementById(id);
-            if (overlay) overlay.classList.toggle('is-draft', isDraft(form));
-            openDialog(id);
+            form.classList.toggle('is-draft', isDraft(form));
+            done = true;
           })
-          .catch(function () {
-            label.textContent = 'Nicht gesendet. Bitte anrufen.';
-            setTimeout(function () { label.textContent = original; }, 4000);
-          })
+          .catch(function () { strip.classList.add('is-error'); })
           .then(function () {
-            if (label.textContent === 'Wird gesendet …') label.textContent = original;
-            btn.disabled = false;
+            busy = false;
+            next.disabled = back.disabled = false;
+            go(cur, 'fwd');
           });
       });
+
+      // closed after sending: the next visit starts fresh. Closed half way: everything stays as it was.
+      overlay.addEventListener('hl:closed', function () {
+        if (!done) return;
+        done = false;
+        form.reset();
+        form.dispatchEvent(new CustomEvent('hl:reset'));
+        qsa('.has-error, .is-invalid', form).forEach(function (n) { n.classList.remove('has-error', 'is-invalid'); });
+        cur = 0;
+        form.setAttribute('data-dir', 'fwd');
+        paint();
+        summary(form);
+      });
+
+      paint();
+      summary(form);
     });
   }
 
@@ -422,8 +603,11 @@
     initMenu();
     initStatus();
     initQuotes();
+    initServices();
+    initWizards();
     initDialogs();
-    initForms();
+    // iOS Safari applies :active only when a touch listener exists
+    document.addEventListener('touchstart', function () {}, { passive: true });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

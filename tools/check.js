@@ -1,4 +1,4 @@
-/* Layout check in WebKit (Safari's engine) and Chromium, all pages x widths.
+/* Layout check in WebKit (Safari's engine) and Chromium, all pages x widths, including every step of the modals.
    Safari differs from Chrome in grid/aspect-ratio details: never sign off a layout change on Chromium alone.
 
      python3 -m http.server 8791 &      # in the project root
@@ -48,8 +48,47 @@ function probe() {
   document.querySelectorAll('.cell:not(.media):not(.strip)').forEach(e => {
     if (e.clientWidth && (e.scrollWidth > e.clientWidth + 1 || e.scrollHeight > e.clientHeight + 1)) add('CLIP ' + e.className.slice(0, 24) + ':' + e.textContent.trim().slice(0, 14));
   });
+  // the service names never wrap or run out of their cell
+  document.querySelectorAll('.svc__name').forEach(a => { if (a.scrollWidth > a.clientWidth + 1) add('SVC name too wide: ' + a.textContent.trim().slice(0, 16)); });
   const hero = document.querySelector('.hero .grid');
   if (hero && innerWidth >= 375 && Math.round(hero.getBoundingClientRect().bottom + scrollY) !== innerHeight) add('HERO ' + Math.round(hero.getBoundingClientRect().bottom + scrollY) + ' != ' + innerHeight);
+  return notes;
+}
+
+/* the step modals: every step of every modal, opened without animation */
+function probeModals() {
+  const frac = v => Math.abs(v - Math.round(v)) > 0.01;
+  const notes = [];
+  const add = t => { if (notes.length < 6) notes.push(t); };
+  document.querySelectorAll('.overlay').forEach(o => {
+    const m = o.querySelector('.modal'), body = m.querySelector('.modal__body');
+    o.classList.add('is-open');
+    m.classList.remove('is-first');
+    const steps = [...m.querySelectorAll('.step')];
+    steps.forEach((st, k) => {
+      steps.forEach(x => x.classList.toggle('is-active', x === st));
+      const tag = o.id + ' step ' + (k + 1) + ': ';
+      const br = body.getBoundingClientRect();
+      m.querySelectorAll('.modal__bar > *, .prog li, .step.is-active:not(.step--done) > *, .step.is-active .seg span, .step.is-active .cal > *, .step.is-active .slot, .step.is-active .input, .step.is-active .drop, .modal__foot > *').forEach(c => {
+        const r = c.getBoundingClientRect();
+        if (!r.width) return;
+        if (frac(r.left) || frac(r.top) || frac(r.width) || frac(r.height)) add(tag + 'FRAC ' + String(c.className || c.tagName).slice(0, 18) + ' ' + [r.left, r.top, r.width, r.height].map(v => +v.toFixed(2)).join('/'));
+        if (r.right > br.right + 0.5) add(tag + 'SPILL ' + String(c.className || c.tagName).slice(0, 18));
+      });
+      if (body.scrollWidth > body.clientWidth) add(tag + 'X-OVERFLOW ' + (body.scrollWidth - body.clientWidth));
+      // one right edge for every control of a step
+      const edges = [...st.querySelectorAll('.step__a > *')].filter(e => e.getBoundingClientRect().width).map(e => Math.round(e.getBoundingClientRect().right * 100) / 100);
+      if (new Set(edges).size > 1) add(tag + 'EDGES ' + [...new Set(edges)].join(','));
+    });
+    const mr = m.getBoundingClientRect();
+    if (frac(mr.left) || frac(mr.top) || frac(mr.width) || frac(mr.height)) add(o.id + ': FRAC modal ' + [mr.left, mr.top, mr.width, mr.height].join('/'));
+    const last = m.querySelector('.prog li:last-child').getBoundingClientRect(), bar = m.querySelector('.modal__bar').getBoundingClientRect();
+    if (Math.abs(last.right - bar.right) > 0.01) add(o.id + ': PROG ends at ' + last.right + ', bar at ' + bar.right);
+    const name = m.querySelector('.modal__name');
+    if (name.scrollWidth > name.clientWidth) add(o.id + ': TITLE cut');
+    m.querySelectorAll('.modal__foot > *').forEach(b => { if (b.scrollWidth > b.clientWidth + 1) add(o.id + ': BUTTON label too wide'); });
+    o.classList.remove('is-open');
+  });
   return notes;
 }
 
@@ -64,7 +103,7 @@ function probe() {
       page.on('pageerror', e => errors.push('JS ' + String(e).slice(0, 100)));
       await page.goto(BASE + p);
       await page.waitForTimeout(150);
-      const notes = (await page.evaluate(probe)).concat(errors);
+      const notes = (await page.evaluate(probe)).concat(await page.evaluate(probeModals), errors);
       n++;
       if (notes.length) { bad++; console.log(p + ' ' + w + 'x' + h + ': ' + notes.join(' | ')); }
       await ctx.close();

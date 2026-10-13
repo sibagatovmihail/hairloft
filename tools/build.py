@@ -2,7 +2,7 @@
 
 1. Builds the inline icon sprite from the shared library (~/Projekte/_icons, Heroicons 24) and writes
    it into index.html between <!-- partial:sprite --> markers.
-2. Copies every <!-- partial:NAME --> block (sprite, header, footer, success) from index.html into
+2. Copies every <!-- partial:NAME --> block (sprite, header, footer, booking modal) from index.html into
    the other pages and marks the current page in the navigation (aria-current="page").
 
 Edit shared blocks in index.html only, then:
@@ -15,9 +15,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 HERO = Path.home() / "Projekte/_icons/heroicons/24"
 PAGES = ["termin.html", "karriere.html", "impressum.html", "datenschutz.html"]
-PARTIALS = ["sprite", "header", "footer"]
+PARTIALS = ["sprite", "header", "footer", "booking"]
 ICONS = [
-    "phone", "paper-clip", "document-text", "arrow-right", "arrow-up-right", "arrow-long-right", "map-pin", "clock", "check", "x-mark",
+    "phone", "paper-clip", "document-text", "arrow-right", "arrow-left", "arrow-up-right", "arrow-long-right", "map-pin", "clock", "check", "x-mark",
     "chevron-left", "chevron-right", "calendar-days", "envelope", "sparkles", "heart", "academic-cap",
     "banknotes", "user-group", "arrow-path", "scissors", "sun", "check-badge", "globe-europe-africa",
     "chat-bubble-left-right", "camera",
