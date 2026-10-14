@@ -839,13 +839,19 @@ textarea.input { height: auto; min-height: 7.5rem; padding-block: 0.875rem; resi
 .draft-tag {
   position: fixed; left: max(.75rem, env(safe-area-inset-left)); bottom: calc(.75rem + env(safe-area-inset-bottom, 0px)); z-index: 80;
   display: inline-flex; align-items: center; gap: .5rem;
-  height: 2rem; padding: 0 .85rem 0 .7rem; margin: 0;
+  height: 2rem; padding: 0 .25rem 0 .7rem; margin: 0;
   background: var(--ink); color: var(--linen);
   font-size: .75rem; font-weight: 600; letter-spacing: .02em; white-space: nowrap;
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   pointer-events: none; user-select: none; -webkit-user-select: none;
 }
 .draft-tag__dot { width: 7px; height: 7px; background: var(--linen); }
+/* switch between the two drafts: A (this grid design) and B (v2/) */
+.draft-tag__ver { display: inline-flex; margin-left: .25rem; padding-left: .25rem; border-left: 1px solid var(--ink-3); pointer-events: auto; }
+.draft-tag__ver > * { display: grid; place-items: center; width: 1.75rem; height: 1.5rem; }
+.draft-tag__ver [aria-current] { background: var(--linen); color: var(--ink); }
+.draft-tag__ver a:active { background: var(--ink-2); }
+@media (hover: hover) { .draft-tag__ver a:hover { background: var(--ink-2); } }
 html.nav-open .draft-tag { display: none; }
 .foot__credit { padding-bottom: 3.5rem; }
 @media (hover: none) { .drop__or { display: none; } }

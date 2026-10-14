@@ -11,7 +11,7 @@
 <link rel="preload" href="fonts/bebas-neue.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/haskoy-vf.woff2" as="font" type="font/woff2" crossorigin>
 <script>document.documentElement.style.setProperty('--screen', window.innerHeight + 'px');</script>
-<link rel="stylesheet" href="css/styles.css?v=16">
+<link rel="stylesheet" href="css/styles.css?v=17">
 </head>
 <body>
 <a class="skip" href="#main">Zum Inhalt springen</a>
@@ -64,7 +64,7 @@
           <h1>Datenschutz</h1>
         </div>
         <div class="cell cell--lg c-12">
-          <div class="legal">
+          <!-- shared:legal --><div class="legal">
             <p><span class="todo">Entwurf: vor dem Livegang rechtlich prüfen und an Hoster und Formulardienst anpassen.</span></p>
             <h2>Verantwortlich</h2>
             <p>The HairLoft by Colle &amp; Roy, <span class="todo">Name(n) der Inhaber</span>, Kopernikusstraße 3, 17036 Neubrandenburg. Telefon <a href="tel:+4915229954976">01522 9954976</a>, E-Mail <a href="mailto:kontakt@hairloft-nb.de">kontakt@hairloft-nb.de</a>.</p>
@@ -78,7 +78,7 @@
             <p>Angaben aus dem Bewerbungsformular und freiwillig angehängte Unterlagen (zum Beispiel Lebenslauf oder Zeugnisse) verwenden wir ausschließlich für das Bewerbungsverfahren (§ 26 BDSG, Art. 6 Abs. 1 lit. b DSGVO). Kommt es nicht zu einer Einstellung, löschen wir die Daten spätestens sechs Monate nach Abschluss des Verfahrens.</p>
             <h2>Deine Rechte</h2>
             <p>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch. Eine Einwilligung kannst du jederzeit widerrufen. Außerdem kannst du dich bei einer Aufsichtsbehörde beschweren, zum Beispiel beim Landesbeauftragten für Datenschutz und Informationsfreiheit Mecklenburg-Vorpommern.</p>
-          </div>
+          </div><!-- /shared:legal -->
         </div>
       </div>
     </div>
@@ -123,7 +123,7 @@
     </div>
   </div>
 </footer>
-<p class="draft-tag" aria-label="Designentwurf von Mykhailo Sibahatov, nicht zur Veröffentlichung freigegeben"><span class="draft-tag__dot" aria-hidden="true"></span>Entwurf · © M. Sibahatov</p>
+<div class="draft-tag"><span class="draft-tag__dot" aria-hidden="true"></span><span>Entwurf · © M. Sibahatov</span><span class="sr-only">Designentwurf von Mykhailo Sibahatov, nicht zur Veröffentlichung freigegeben.</span><span class="draft-tag__ver"><span aria-current="page"><span class="sr-only">Entwurf </span>A</span><a href="v2/datenschutz.html" data-ver="v2/"><span class="sr-only">Entwurf </span>B</a></span></div>
 <!-- /partial:footer -->
 
 <!-- partial:booking -->
@@ -283,7 +283,7 @@
 </div>
 <!-- /partial:booking -->
 
-<script src="js/main.js?v=16" defer></script>
-<script src="js/booking.js?v=16" defer></script>
+<script src="js/main.js?v=17" defer></script>
+<script src="js/booking.js?v=17" defer></script>
 </body>
 </html>

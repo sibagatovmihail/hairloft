@@ -121,7 +121,8 @@
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && open) { set(false); toggle.focus(); }
     });
-    var mq = window.matchMedia('(min-width: 56.3125rem)');
+    // the width from which the desktop nav replaces the burger (v2 sets its own on the toggle)
+    var mq = window.matchMedia(toggle.getAttribute('data-desktop') || '(min-width: 56.3125rem)');
     var onChange = function () { if (mq.matches) set(false); };
     if (mq.addEventListener) mq.addEventListener('change', onChange); else mq.addListener(onChange);
   }

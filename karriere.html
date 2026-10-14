@@ -13,7 +13,7 @@
 <link rel="preload" href="fonts/bebas-neue.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/haskoy-vf.woff2" as="font" type="font/woff2" crossorigin>
 <script>document.documentElement.style.setProperty('--screen', window.innerHeight + 'px');</script>
-<link rel="stylesheet" href="css/styles.css?v=16">
+<link rel="stylesheet" href="css/styles.css?v=17">
 </head>
 <body>
 <a class="skip" href="#main">Zum Inhalt springen</a>
@@ -197,7 +197,7 @@
     </div>
   </div>
 </footer>
-<p class="draft-tag" aria-label="Designentwurf von Mykhailo Sibahatov, nicht zur Veröffentlichung freigegeben"><span class="draft-tag__dot" aria-hidden="true"></span>Entwurf · © M. Sibahatov</p>
+<div class="draft-tag"><span class="draft-tag__dot" aria-hidden="true"></span><span>Entwurf · © M. Sibahatov</span><span class="sr-only">Designentwurf von Mykhailo Sibahatov, nicht zur Veröffentlichung freigegeben.</span><span class="draft-tag__ver"><span aria-current="page"><span class="sr-only">Entwurf </span>A</span><a href="v2/karriere.html" data-ver="v2/"><span class="sr-only">Entwurf </span>B</a></span></div>
 <!-- /partial:footer -->
 
 <!-- partial:booking -->
@@ -357,7 +357,7 @@
 </div>
 <!-- /partial:booking -->
 
-<div class="overlay" id="apply" aria-hidden="true">
+<!-- shared:apply --><div class="overlay" id="apply" aria-hidden="true">
   <form class="modal" data-wizard role="dialog" aria-modal="true" aria-labelledby="apply-title" action="https://api.web3forms.com/submit" method="POST">
     <input type="hidden" name="access_key" value="WEB3FORMS-KEY">
     <input type="hidden" name="subject" value="Bewerbung über die Website">
@@ -486,9 +486,9 @@
       <button class="btn modal__next" type="submit" data-wz-next data-send="Bewerbung senden"><span>Weiter</span><svg class="i i--go"><use href="#i-arrow-right"/></svg></button>
     </div>
   </form>
-</div>
+</div><!-- /shared:apply -->
 
-<script src="js/main.js?v=16" defer></script>
-<script src="js/booking.js?v=16" defer></script>
+<script src="js/main.js?v=17" defer></script>
+<script src="js/booking.js?v=17" defer></script>
 </body>
 </html>

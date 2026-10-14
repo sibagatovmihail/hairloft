@@ -5,6 +5,15 @@ Statisches HTML/CSS/JS ohne Build-Schritt.
 
 **© 2026 Mykhailo Sibahatov. Alle Rechte vorbehalten.** Der Entwurf dient ausschließlich zur Ansicht. Kopieren, Veröffentlichen oder Weiterverwenden nur mit schriftlicher Vereinbarung, siehe [LICENSE](LICENSE). Namen, Logo, Fotos und Bewertungen des Salons sind ausgenommen und bleiben bei ihren Inhabern.
 
+Es gibt zwei Entwürfe mit denselben Inhalten und denselben Formularen:
+
+| Entwurf | Adresse | Gestaltung |
+|---|---|---|
+| A | https://sibagatovmihail.github.io/hairloft/ (auch `/v1/`) | Rasterdesign: Zellen auf einem 12er-Raster, Bebas Neue |
+| B | https://sibagatovmihail.github.io/hairloft/v2/ | „Atelier“: klassisches Layout, Schriften aus dem Logo (Playfair Display, Montserrat), Bogenfotos, ruhige Scroll-Animationen |
+
+Das Kästchen „Entwurf · A | B“ unten links wechselt auf jeder Seite zur gleichen Seite im anderen Entwurf.
+
 | Seite | Inhalt |
 |---|---|
 | `index.html` | Startseite: Leistungen, Ergebnisse, Salon, Stimmen, Besuch |
@@ -25,6 +34,8 @@ python3 -m http.server 8791
 ```
 
 Gemeinsame Blöcke (Header, Footer, Icon-Sprite, Terminanfrage) nur in `index.html` ändern, danach `python3 tools/build.py`.
+Entwurf B liegt in `v2/` (eigenes CSS und Header/Footer in `v2/index.html`); Terminanfrage, Kurzbewerbung und die
+Rechtstexte übernimmt `tools/build.py` aus Entwurf A, die Logik (`js/main.js`, `js/booking.js`) teilen sich beide.
 
 ## Woher die Inhalte stammen
 
@@ -54,3 +65,5 @@ Stellen-Post vom 28.08.2026 und die Fotos.
 ## Schriften
 
 Bebas Neue (Dharma Type, SIL Open Font License; Überschriften) und Hasköy (Ertekin, SIL Open Font License; Fließtext), beide lokal eingebunden (`fonts/`).
+Entwurf B: Playfair Display und Montserrat (beide SIL Open Font License, die Schriften des Logos), lokal in `v2/fonts/`.
+Lenis (MIT-Lizenz) für das weiche Scrollen, lokal in `v2/js/`.
