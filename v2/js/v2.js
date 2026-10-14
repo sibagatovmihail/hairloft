@@ -253,7 +253,7 @@
     layoutTail();
     requestTick();
   }
-  var faceReady = document.fonts && document.fonts.load ? document.fonts.load('500 48px "HL Display"') : Promise.resolve();
+  var faceReady = document.fonts && document.fonts.load ? document.fonts.load('600 48px "HL Sans"') : Promise.resolve();
   var timeout = new Promise(function (r) { window.setTimeout(r, 1200); });
   Promise.race([faceReady, timeout]).then(boot, boot);
   // a late font or a late stylesheet changes the line breaks: measure again
