@@ -11,7 +11,7 @@ Statisches HTML/CSS/JS ohne Build-Schritt.
 | `termin.html` | Einstieg in die Terminanfrage (Direktlink, auch mit `?leistung=glossing`) |
 | `karriere.html` | Recruiting: Vorteile, Ablauf, Kurzbewerbung |
 
-Die Terminanfrage ist ein Fenster in fünf Schritten (Leistung, Tag, Uhrzeit, Kontakt, Senden) und öffnet sich auf jeder
+Die Terminanfrage ist ein Fenster in vier Schritten (Leistung, Termin mit Tag und Uhrzeit in einem Schritt, Kontakt, Senden) und öffnet sich auf jeder
 Seite über „Termin anfragen". Die Kurzbewerbung läuft genauso in vier Schritten (Über dich, Kontakt, Unterlagen, Senden).
 
 | Seite | Inhalt |

@@ -12,8 +12,9 @@
    One column rhythm on every page: thirds (4 / 4 / 4 or 4 / 8). The rails at column 4 and 8 run from the
    hero to the footer; no band splits into halves or quarters.
 
-   Colour: Winter Pear never sits on Potting Soil (no green text, labels, buttons or dots on brown), and
-   two brown cells never touch. On brown the type is white or Cannoli Cream. */
+   Colour: the accent (rose gold) never sits on Potting Soil (no accent text, labels, buttons or dots on brown;
+   the logo is the only rose gold on brown), and two brown cells never touch. On brown the type is white or
+   Cannoli Cream. */
 
 /* ---------- Fonts (self-hosted, SIL OFL: fonts/OFL-*.txt) ---------- */
 @font-face {
@@ -31,14 +32,14 @@
 
 /* ---------- Tokens ---------- */
 :root {
-  /* palette (07.10.2026, client-side picks): Pantone 11-4302 TCX Cannoli Cream, 15-0523 TCX Winter Pear,
-     19-1218 TCX Potting Soil. Plummed Depths was dropped again on 08.10.2026: no plum anywhere. Token names kept
-     from the rose-gold version. Rule: one green only (Winter Pear, solid), never tinted or faded: --rose and --blush are the same value. */
+  /* palette: Pantone 11-4302 TCX Cannoli Cream and 19-1218 TCX Potting Soil (client-side picks, 07.10.2026) plus
+     the logo's rose gold as the one accent (14.10.2026: Winter Pear dropped, only the small "open now" dot is still green; plum dropped on
+     08.10.2026). Rule: one accent only, solid, never tinted or faded: --rose and --blush are the same value. */
   --paper: #faf9f4;      /* page ground: clearer than Cannoli Cream, which is kept as the wash below */
   --linen: #f0efe2;      /* Cannoli Cream (washes, hovers, disabled) */
   --sand: #f0efe2;
-  --blush: #b0b487;      /* the one green, solid (no tints) */
-  --rose: #b0b487;       /* Winter Pear */
+  --blush: #e2b8a0;      /* the one accent, solid (no tints) */
+  --rose: #e2b8a0;       /* rose gold: the middle stop of the logo's gradient */
   --ink: #54392d;        /* Potting Soil */
   --ink-2: #6f5a4f;
   --ink-3: #78675d;
@@ -223,12 +224,14 @@ h3 { font-size: var(--t-h3); --lh: 1; }
 
 /* linked cells: plain tint, the arrow nudges */
 a.cell { transition: background-color 0.2s; }
-a.cell:hover { background: var(--linen); }
-a.cell--blush:hover { background: var(--rose); }
-a.cell--ink:hover { background: #6a4a3c; }
+@media (hover: hover) {
+  a.cell:hover { background: var(--linen); }
+  a.cell--blush:hover { background: var(--rose); }
+  a.cell--ink:hover { background: #6a4a3c; }
+  a.cell:hover .go .i { transform: translateX(0.25rem); }
+}
 .go { display: inline-flex; align-items: center; gap: 0.5rem; font-size: var(--t-small); font-weight: 500; }
 .go .i { width: 1.125rem; height: 1.125rem; transition: transform 0.2s; }
-a.cell:hover .go .i { transform: translateX(0.25rem); }
 
 /* photo cells */
 .media { padding: 0; overflow: hidden; background: var(--sand); min-height: 14rem; }
@@ -268,7 +271,7 @@ a.cell:hover .go .i { transform: translateX(0.25rem); }
   .btn:hover { background: var(--rose); border-color: var(--rose); color: var(--ink); }
   .btn:hover .i--go { transform: translateX(0.1875rem); }
   .btn--line:hover { background: var(--blush); border-color: var(--ink); color: var(--ink); }
-  /* on a green cell the hover cannot be green: the button turns to paper */
+  /* on a rose cell the hover cannot be rose: the button turns to paper */
   .cell--blush .btn:hover { background: var(--paper); border-color: var(--ink); }
 }
 .btn[disabled] { background: var(--ink-3); border-color: var(--ink-3); color: #fff; cursor: default; }
@@ -360,31 +363,16 @@ a.strip:hover .strip__arrow { transform: translateX(0.25rem); }
 .stat--sm { font-size: var(--t-stat-sm); --lh: 0.95; }
 .stat + .small, .small + .stat { margin-top: 0.5rem; }
 
-/* ---------- Leistungen: a type index (left, two thirds) and one stage (right) ----------
-   Wide screens: pointing at a name shows it on the stage. Below 64rem the stage is gone and the list is an
-   accordion: one item open, always the same height, so nothing below it moves. Row heights are explicit
-   and the names never wrap, so the cell is whole pixels at every size of the display font. */
-.svcs { justify-content: center; padding: var(--pad-lg); }
-.svcs__list { container-type: inline-size; display: flex; flex-direction: column; }
-.svc__h { font-size: 1rem; letter-spacing: 0; }
-.svc__name {
-  display: flex; align-items: center; width: 100%; height: 4rem;
-  font-family: var(--f-display); font-size: clamp(1.125rem, 6.9cqw, 3.375rem); --lh: 1; letter-spacing: 0.02em; white-space: nowrap;
-}
-@supports (width: round(down, 10px, 1px)) {
-  .svc__name { font-size: round(down, clamp(1.125rem, 6.9cqw, 3.375rem), 3px); }
-}
-.svc__no { flex: none; width: 2.75rem; font-family: var(--f-body); font-size: var(--t-label); font-weight: 500; letter-spacing: 0.14em; color: var(--ink-3); font-variant-numeric: tabular-nums; }
-.svc__t { padding-inline: 0.1em; margin-inline: -0.1em; }
-.svc__name > .i { margin-left: auto; visibility: hidden; }
-.svc.is-active .svc__t { background: linear-gradient(var(--blush), var(--blush)) 0 56% / 100% 0.84em no-repeat; }
-.svc.is-active .svc__name > .i { visibility: visible; }
-.svc__name:focus-visible { outline-offset: -2px; }
-.svc__more { display: none; }
-.stage { gap: var(--gap); padding-block: var(--pad-lg); }
-.stage__t { display: flex; align-items: flex-end; min-height: calc(2 * var(--t-third)); font-size: var(--t-third); --lh: 1; }
-.stage__d { min-height: 3rem; font-size: 0.9375rem; color: var(--ink-2); }
-.stage .btn { align-self: flex-start; }
+/* ---------- Leistungen: nine cells on the thirds, three per row ----------
+   Every cell reads the same way from top to bottom: number + kind, name, one line, "Anfragen". The name has
+   room for two lines in every cell, so the lines of one row start at the same height and can be scanned
+   across. One tap on a cell opens the request with the service already chosen. */
+.svc { min-height: 15rem; padding-block: var(--pad-lg) var(--pad); }
+.svc__t { display: flex; align-items: flex-end; min-height: 2em; font-size: var(--t-third); --lh: 1; hyphens: manual; }
+.svc__d { font-size: 0.9375rem; color: var(--ink-2); --lh: 1.45; max-width: 22rem; }
+.svc .label { flex-wrap: nowrap; white-space: nowrap; }   /* one line, so the names of a row start level */
+.svc__go { margin-top: auto; }
+.svc:active { background: var(--linen); }
 
 /* ---------- Photos: plain hover, no zoom ---------- */
 .media::after { content: ""; position: absolute; inset: 0; z-index: 1; background: var(--ink); opacity: 0; transition: opacity 0.25s; pointer-events: none; }
@@ -563,11 +551,29 @@ textarea.input { height: auto; min-height: 7.5rem; padding-block: 0.875rem; resi
 .cal__legend i { width: 0.625rem; height: 0.625rem; border: 1px solid var(--line); background: var(--linen); }
 .cal__legend .lg-today i { background: var(--ink); border-color: var(--ink); }
 
-/* time slots */
+/* time slots: a head (which day), then the times, always filled to whole rows */
 .slots { display: grid; grid-template-columns: repeat(4, calc((100cqw - 1px) / 4)); }
+.slots__head { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; height: 3rem; padding-inline: 0.875rem; background: var(--linen); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: var(--t-small); white-space: nowrap; }
+.slots__k { font-size: var(--t-label); font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2); }
+.slots__day { font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.slots.is-off .slots__day { font-weight: 400; color: var(--ink-2); }
+.slot--blank { display: block; background: var(--linen); }
+.slots.is-fresh button.slot { animation: slot-in 0.28s ease-out both; }
+@keyframes slot-in { from { opacity: 0; } }
 .slot { height: var(--ctl-h); background: var(--paper); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; font-weight: 500; transition: background-color 0.15s, color 0.15s; }
 @media (hover: hover) { .slot:hover:not([disabled]) { background: var(--blush); } }
 .slot[disabled] { background: var(--linen); color: #c3b6ad; font-weight: 400; cursor: default; }
+/* Termin step: the calendar and the times in one step. Narrow: the times under the calendar. Wide enough
+   (the answer column is 505px and more): side by side, the times' head as tall as the month and weekday rows,
+   five rows of times as tall as the six weeks, so both grids close on one line. */
+.when { display: flex; flex-direction: column; gap: var(--gap); }
+@container (min-width: 505px) {
+  .when { --day: round(down, calc((100cqw - 1px) * 0.56 / 7), 1px); display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 0; }
+  .when .cal { --day: round(down, calc((100cqw - 1px) * 0.56 / 7), 1px); }
+  .when .slots { width: auto; max-width: none; border-left: 0; grid-template-rows: 5rem; grid-template-columns: repeat(3, round(down, calc((100cqw - 1px - 7 * var(--day)) / 4), 1px)) minmax(0, 1fr); grid-auto-rows: 3rem; }
+  .when .slots__head { height: 5rem; flex-direction: column; align-items: flex-start; justify-content: center; gap: 0.25rem; }
+  .when .slot { height: 3rem; }
+}
 .slots .slot[aria-pressed="true"] { background: var(--ink); color: #fff; }
 .slot:focus-visible { outline-offset: -3px; position: relative; z-index: 1; }
 
@@ -575,8 +581,8 @@ textarea.input { height: auto; min-height: 7.5rem; padding-block: 0.875rem; resi
   .snap > .form-rows { grid-template-columns: repeat(2, round(down, calc((100cqw - var(--gap)) / 2), 1px)); }
   /* the last column takes the pixels that are left: the control ends where its field ends */
   .seg { grid-template-columns: repeat(calc(var(--n, 3) - 1), round(down, calc((100cqw - 1px) / var(--n, 3)), 1px)) minmax(0, 1fr); }
-  .cal { --day: round(down, calc((100cqw - 1px) / 7), 1px); }
-  .slots { grid-template-columns: repeat(4, round(down, calc((100cqw - 1px) / 4), 1px)); }
+  .cal { --day: round(down, calc((100cqw - 1px) / 7 + 0.01px), 1px); }   /* +0.01px: 48 must not come out as 47.999 */
+  .slots { grid-template-columns: repeat(4, round(down, calc((100cqw - 1px) / 4 + 0.01px), 1px)); }
 }
 
 /* summary */
@@ -596,7 +602,7 @@ textarea.input { height: auto; min-height: 7.5rem; padding-block: 0.875rem; resi
 .overlay.is-open { visibility: visible; opacity: 1; transition: opacity 0.22s, visibility 0s; }
 .modal {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  width: min(100% - 2rem, 58rem); height: min(100% - 2rem, 43rem);
+  width: min(100% - 2rem, 64rem); height: min(100% - 2rem, 43rem);
   display: flex; flex-direction: column;
   background: var(--paper); border: 1px solid var(--line);
   container-type: inline-size;   /* the progress segments and the step columns take whole pixels from it */
@@ -604,8 +610,8 @@ textarea.input { height: auto; min-height: 7.5rem; padding-block: 0.875rem; resi
 @supports (width: round(down, 10px, 1px)) {
   .modal {
     transform: none;
-    width: round(down, min(100% - 2rem, 58rem), 2px); height: round(down, min(100% - 2rem, 43rem), 2px);
-    left: round(down, calc((100% - min(100% - 2rem, 58rem)) / 2), 1px);
+    width: round(down, min(100% - 2rem, 64rem), 2px); height: round(down, min(100% - 2rem, 43rem), 2px);
+    left: round(down, calc((100% - min(100% - 2rem, 64rem)) / 2), 1px);
     top: round(down, calc((100% - min(100% - 2rem, 43rem)) / 2), 1px);
   }
 }
@@ -617,7 +623,7 @@ textarea.input { height: auto; min-height: 7.5rem; padding-block: 0.875rem; resi
 @media (hover: hover) { .modal__x:hover { background: var(--blush); } }
 .modal__x:focus-visible { outline-offset: -4px; }
 
-/* progress: one segment per step. Done = green with a check, now = bold with a bar, to do = quiet.
+/* progress: one segment per step. Done = rose with a check, now = bold with a bar, to do = quiet.
    The last column takes the pixels that are left, so the segments end on the modal's right line. */
 .prog { flex: none; display: grid; grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
 .prog li + li { border-left: 1px solid var(--line); }
@@ -674,7 +680,7 @@ textarea.input { height: auto; min-height: 7.5rem; padding-block: 0.875rem; resi
 .step--done p { max-width: 26rem; color: var(--ink-2); }
 .step--done [data-draft] { display: none; }
 .modal.is-draft .step--done [data-draft] { display: block; }
-.mark { width: 3.25rem; height: 3.25rem; display: grid; place-items: center; background: var(--ok); color: #fff; }
+.mark { width: 3.25rem; height: 3.25rem; display: grid; place-items: center; background: var(--ink); color: #fff; }
 .mark .i { width: 1.75rem; height: 1.75rem; stroke-width: 2; }
 @supports (width: round(down, 10px, 1px)) {
   /* centred on a whole pixel, also in a panel of odd width */
@@ -715,6 +721,11 @@ textarea.input { height: auto; min-height: 7.5rem; padding-block: 0.875rem; resi
     .modal__name, .modal__sum, .step__q, .step__a { padding-inline: var(--inset); }
   }
 }
+@supports (width: round(down, 10px, 1px)) {
+  @media (max-width: 46rem) {
+    .modal { height: round(down, min(100% - 2rem, 48rem), 2px); top: round(down, calc((100% - min(100% - 2rem, 48rem)) / 2), 1px); }
+  }
+}
 @media (max-width: 37.5rem), (max-height: 33rem) {
   .modal { left: 0; top: 0; width: 100%; height: 100%; transform: none; border: 0; }
   .modal__bar { height: 3.25rem; }
@@ -748,7 +759,7 @@ textarea.input { height: auto; min-height: 7.5rem; padding-block: 0.875rem; resi
 
 /* ---------- Desktop: explicit placements ---------- */
 @media (min-width: 64.0625rem) {
-  /* closing row: the request comes first in the source (and on phones, so its green never lands on the
+  /* closing row: the request comes first in the source (and on phones, so its rose never lands on the
      footer's brown logo cell); on wide screens it sits right, the small cell left */
   .grid--close > .cta { grid-column: 5 / span 8; grid-row: 1; }
   .grid--close > :not(.cta) { grid-column: 1 / span 4; grid-row: 1; }
@@ -761,12 +772,7 @@ textarea.input { height: auto; min-height: 7.5rem; padding-block: 0.875rem; resi
 @media (max-width: 64rem) {
   .strip .st-rest, .strip__arrow { display: none; }
   .t-12 { grid-column: span 12; } .t-8 { grid-column: span 8; } .t-6 { grid-column: span 6; } .t-4 { grid-column: span 4; }
-  /* services: the stage goes, the list opens in place (one item, fixed height) */
-  .svc-stage { display: none; }
-  .svcs { padding-block: var(--pad); }
-  .svc__name { height: max(3rem, calc(1em * 4 / 3)); }   /* the font size is a multiple of 3px: 4/3 of it is whole */
-  .svc.is-active .svc__more { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; height: 5.5rem; padding: 0.125rem 0 0 2.75rem; }
-  .svc__more p { font-size: 0.9375rem; color: var(--ink-2); }
+  .svc { min-height: 13rem; }
 }
 
 /* ---------- Header: hamburger ---------- */
@@ -793,6 +799,7 @@ textarea.input { height: auto; min-height: 7.5rem; padding-block: 0.875rem; resi
   .strip { padding-inline: 0.875rem; gap: 0.5rem; }
   .visit, .stat-cell { min-height: 0; }
   .note { min-height: 0; }
+  .svc__t { font-size: 1.3125rem; }   /* three narrow columns: the long names still fit on two lines */
   .note .label:has(> .bar:only-child) { display: none; }
   .note h3 {
     hyphens: auto; -webkit-hyphens: auto;
@@ -802,6 +809,12 @@ textarea.input { height: auto; min-height: 7.5rem; padding-block: 0.875rem; resi
 
 /* ---------- Phones ---------- */
 @media (max-width: 37.5rem) {
+  .svc { grid-column: span 12; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--gap); row-gap: 0.375rem; align-items: center; padding-block: var(--pad); }
+  .svc .label { grid-column: 1 / -1; }
+  .svc__t { grid-column: 1; min-height: 0; }
+  .svc__d { grid-column: 1; }
+  .svc__go { grid-column: 2; grid-row: 2 / span 2; margin: 0; }
+  .svc__go > span { display: none; }
   .actions { flex-direction: column; }
   .actions .btn { padding-inline: 1rem; }
   .actions .btn + .btn { margin-left: 0; margin-top: -1px; }

@@ -48,8 +48,12 @@ function probe() {
   document.querySelectorAll('.cell:not(.media):not(.strip)').forEach(e => {
     if (e.clientWidth && (e.scrollWidth > e.clientWidth + 1 || e.scrollHeight > e.clientHeight + 1)) add('CLIP ' + e.className.slice(0, 24) + ':' + e.textContent.trim().slice(0, 14));
   });
-  // the service names never wrap or run out of their cell
-  document.querySelectorAll('.svc__name').forEach(a => { if (a.scrollWidth > a.clientWidth + 1) add('SVC name too wide: ' + a.textContent.trim().slice(0, 16)); });
+  // service names: no word runs out of its cell, and in the three-column grid no name needs a third line
+  document.querySelectorAll('.svc__t').forEach(t => {
+    if (t.scrollWidth > t.clientWidth + 1) add('SVC name too wide: ' + t.textContent.trim().slice(0, 16));
+    const fs = parseFloat(getComputedStyle(t).fontSize);
+    if (innerWidth > 600 && t.getBoundingClientRect().height > 2 * fs + 1) add('SVC name on 3 lines: ' + t.textContent.trim().slice(0, 16));
+  });
   const hero = document.querySelector('.hero .grid');
   if (hero && innerWidth >= 375 && Math.round(hero.getBoundingClientRect().bottom + scrollY) !== innerHeight) add('HERO ' + Math.round(hero.getBoundingClientRect().bottom + scrollY) + ' != ' + innerHeight);
   return notes;
@@ -79,6 +83,16 @@ function probeModals() {
       // one right edge for every control of a step
       const edges = [...st.querySelectorAll('.step__a > *')].filter(e => e.getBoundingClientRect().width).map(e => Math.round(e.getBoundingClientRect().right * 100) / 100);
       if (new Set(edges).size > 1) add(tag + 'EDGES ' + [...new Set(edges)].join(','));
+      // the Termin step: calendar and times close on one line (side by side) or share the edges (stacked)
+      const when = st.querySelector('.when');
+      if (when) {
+        const c = when.querySelector('.cal').getBoundingClientRect(), t = when.querySelector('.slots').getBoundingClientRect(), w = when.getBoundingClientRect();
+        const side = getComputedStyle(when).display === 'grid';
+        if (side && (c.bottom !== t.bottom || c.top !== t.top || t.right !== w.right || c.right !== t.left + 0)) add(tag + 'WHEN grids ' + [c.top, c.bottom, t.top, t.bottom, c.right, t.left, t.right, w.right].join('/'));
+        if (!side && (c.right !== t.right)) add(tag + 'WHEN stacked edges ' + c.right + '/' + t.right);
+        if (side && body.scrollHeight > body.clientHeight) add(tag + 'WHEN scrolls ' + (body.scrollHeight - body.clientHeight));
+        when.querySelectorAll('.slot, .slots__head > *').forEach(x => { if (x.scrollWidth > x.clientWidth + 1) add(tag + 'SLOT text too wide'); });
+      }
     });
     const mr = m.getBoundingClientRect();
     if (frac(mr.left) || frac(mr.top) || frac(mr.width) || frac(mr.height)) add(o.id + ': FRAC modal ' + [mr.left, mr.top, mr.width, mr.height].join('/'));

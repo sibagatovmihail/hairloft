@@ -11,7 +11,7 @@
 <link rel="preload" href="fonts/bebas-neue.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/haskoy-vf.woff2" as="font" type="font/woff2" crossorigin>
 <script>document.documentElement.style.setProperty('--screen', window.innerHeight + 'px');</script>
-<link rel="stylesheet" href="css/styles.css?v=15">
+<link rel="stylesheet" href="css/styles.css?v=16">
 </head>
 <body>
 <a class="skip" href="#main">Zum Inhalt springen</a>
@@ -138,15 +138,14 @@
 
     <div class="modal__bar">
       <p class="modal__name" id="book-title">Terminanfrage</p>
-      <p class="modal__count" data-wz-count aria-live="polite">Schritt 1 von 5</p>
+      <p class="modal__count" data-wz-count aria-live="polite">Schritt 1 von 4</p>
       <button class="modal__x" type="button" data-close aria-label="Schließen"><svg class="i"><use href="#i-x-mark"/></svg></button>
     </div>
-    <ol class="prog" style="--n:5" aria-label="Fortschritt">
+    <ol class="prog" style="--n:4" aria-label="Fortschritt">
       <li><button type="button" data-wz-go="0"><span class="prog__no">1</span><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span class="prog__t">Leistung</span></button></li>
-      <li><button type="button" data-wz-go="1"><span class="prog__no">2</span><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span class="prog__t">Tag</span></button></li>
-      <li><button type="button" data-wz-go="2"><span class="prog__no">3</span><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span class="prog__t">Uhrzeit</span></button></li>
-      <li><button type="button" data-wz-go="3"><span class="prog__no">4</span><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span class="prog__t">Kontakt</span></button></li>
-      <li><button type="button" data-wz-go="4"><span class="prog__no">5</span><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span class="prog__t">Senden</span></button></li>
+      <li><button type="button" data-wz-go="1"><span class="prog__no">2</span><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span class="prog__t">Termin</span></button></li>
+      <li><button type="button" data-wz-go="2"><span class="prog__no">3</span><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span class="prog__t">Kontakt</span></button></li>
+      <li><button type="button" data-wz-go="3"><span class="prog__no">4</span><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span class="prog__t">Senden</span></button></li>
     </ol>
 
     <div class="modal__body">
@@ -185,38 +184,27 @@
         </div>
       </div>
 
-      <div class="step" data-step data-group="datum" role="group" aria-labelledby="bk-q2">
+      <div class="step step--when" data-step data-group="datum uhrzeit" role="group" aria-labelledby="bk-q2">
         <div class="step__q">
-          <p class="label"><span class="no">02</span><span class="bar" aria-hidden="true"></span><span>Tag</span></p>
+          <p class="label"><span class="no">02</span><span class="bar" aria-hidden="true"></span><span>Termin</span></p>
           <h2 id="bk-q2" tabindex="-1">Wann passt es dir?</h2>
-          <p class="small">Wir sind Dienstag bis Freitag von 8 bis 18 Uhr für dich da.</p>
-          <p class="err" role="alert">Bitte wähle einen Tag.</p>
+          <p class="small">Wähle einen Tag, dann erscheinen daneben seine Uhrzeiten. Die Zeit ist ein Wunsch, wir bestätigen sie dir am Telefon.</p>
+          <p class="err" role="alert">Bitte wähle einen Tag und eine Uhrzeit.</p>
         </div>
         <div class="step__a">
           <div class="snap">
-            <div class="cal" data-cal role="group" aria-labelledby="bk-q2"></div>
+            <div class="when">
+              <div class="cal" data-cal role="group" aria-label="Tag"></div>
+              <div class="slots" data-slots role="group" aria-label="Uhrzeit" aria-live="polite"></div>
+            </div>
           </div>
           <p class="cal__legend"><span class="lg-today"><i></i>heute</span><span><i></i>geschlossen oder vorbei</span></p>
         </div>
       </div>
 
-      <div class="step" data-step data-group="uhrzeit" role="group" aria-labelledby="bk-q3">
-        <div class="step__q">
-          <p class="label"><span class="no">03</span><span class="bar" aria-hidden="true"></span><span>Uhrzeit</span></p>
-          <h2 id="bk-q3" tabindex="-1">Deine Wunschzeit</h2>
-          <p class="small" data-slot-hint>Die Uhrzeit ist ein Wunsch. Wir sagen dir am Telefon, ob sie frei ist.</p>
-          <p class="err" role="alert">Bitte wähle eine Uhrzeit.</p>
-        </div>
-        <div class="step__a">
-          <div class="snap">
-            <div class="slots" data-slots role="group" aria-labelledby="bk-q3"></div>
-          </div>
-        </div>
-      </div>
-
       <div class="step" data-step role="group" aria-labelledby="bk-q4">
         <div class="step__q">
-          <p class="label"><span class="no">04</span><span class="bar" aria-hidden="true"></span><span>Kontakt</span></p>
+          <p class="label"><span class="no">03</span><span class="bar" aria-hidden="true"></span><span>Kontakt</span></p>
           <h2 id="bk-q4" tabindex="-1">Wie erreichen wir dich?</h2>
           <p class="small">Wir rufen dich an und machen den Termin fest.</p>
         </div>
@@ -252,7 +240,7 @@
 
       <div class="step" data-step role="group" aria-labelledby="bk-q5">
         <div class="step__q">
-          <p class="label"><span class="no">05</span><span class="bar" aria-hidden="true"></span><span>Senden</span></p>
+          <p class="label"><span class="no">04</span><span class="bar" aria-hidden="true"></span><span>Senden</span></p>
           <h2 id="bk-q5" tabindex="-1">Passt alles?</h2>
           <p class="small">Unverbindlich. Der Termin gilt erst, wenn wir ihn dir am Telefon bestätigt haben.</p>
         </div>
@@ -295,7 +283,7 @@
 </div>
 <!-- /partial:booking -->
 
-<script src="js/main.js?v=15" defer></script>
-<script src="js/booking.js?v=15" defer></script>
+<script src="js/main.js?v=16" defer></script>
+<script src="js/booking.js?v=16" defer></script>
 </body>
 </html>

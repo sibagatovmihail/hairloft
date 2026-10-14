@@ -200,59 +200,6 @@
     });
   }
 
-  /* ---------- Leistungen: the name under the pointer (or the tapped one) is the one on show ---------- */
-  function initServices() {
-    var box = document.querySelector('[data-svcs]');
-    if (!box) return;
-    var items = qsa('.svc', box);
-    var stage = document.querySelector('[data-svc-stage]');
-    var wide = window.matchMedia('(min-width: 64.0625rem)');
-    var canHover = window.matchMedia('(hover: hover)');
-    var pressed = null;
-
-    function activate(li) {
-      if (li.classList.contains('is-active')) return;
-      items.forEach(function (x) {
-        var on = x === li;
-        x.classList.toggle('is-active', on);
-        var a = x.querySelector('.svc__name');
-        if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
-      });
-      if (!stage) return;
-      var name = li.querySelector('.svc__name');
-      stage.querySelector('[data-svc-no]').textContent = li.querySelector('.svc__no').textContent;
-      stage.querySelector('[data-svc-title]').textContent = li.querySelector('.svc__t').textContent;
-      stage.querySelector('[data-svc-desc]').textContent = li.querySelector('.svc__more p').textContent;
-      stage.querySelector('[data-svc-link]').setAttribute('href', name.getAttribute('href'));
-    }
-    function nameOf(e) { return e.target.closest ? e.target.closest('.svc__name') : null; }
-
-    box.addEventListener('mouseover', function (e) {
-      var a = nameOf(e);
-      if (a && wide.matches && canHover.matches) activate(a.closest('.svc'));
-    });
-    box.addEventListener('focusin', function (e) {
-      var a = nameOf(e);
-      if (a && wide.matches && a.matches(':focus-visible')) activate(a.closest('.svc'));
-    });
-    // a tap first shows the service; only a click on the one already on show starts the request
-    box.addEventListener('pointerdown', function (e) {
-      var a = nameOf(e);
-      pressed = a ? { li: a.closest('.svc'), was: a.closest('.svc').classList.contains('is-active') } : null;
-    });
-    box.addEventListener('click', function (e) {
-      var a = nameOf(e);
-      if (!a) return;
-      var li = a.closest('.svc');
-      var was = pressed && pressed.li === li ? pressed.was : li.classList.contains('is-active');
-      pressed = null;
-      if (was) return;
-      e.preventDefault();
-      e.stopPropagation();
-      activate(li);
-    });
-  }
-
   /* ---------- Modals ---------- */
   var lastFocus = null;
   function focusable(root) {
@@ -346,8 +293,10 @@
     var groups = qsa('[data-group]', scope);
     if (scope.hasAttribute('data-group')) groups.unshift(scope);
     groups.forEach(function (group) {
-      var el = form.elements[group.getAttribute('data-group')];
-      var ok = !!(el && el.value);
+      var ok = group.getAttribute('data-group').split(' ').every(function (name) {
+        var el = form.elements[name];
+        return !!(el && el.value);
+      });
       group.classList.toggle('has-error', !ok);
       if (!ok && !first) first = group;
     });
@@ -603,7 +552,6 @@
     initMenu();
     initStatus();
     initQuotes();
-    initServices();
     initWizards();
     initDialogs();
     // iOS Safari applies :active only when a touch listener exists

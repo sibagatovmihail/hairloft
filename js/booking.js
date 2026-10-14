@@ -1,4 +1,5 @@
-/* Terminanfrage (the modal on every page): calendar and time slots of steps 2 and 3.
+/* Terminanfrage (the modal on every page): calendar and time slots of step 2 ("Termin", both in one step:
+   a click on a day shows its times right away, no confirming in between).
    Uses the salon data from main.js (window.HL); the steps, the summary and the sending live there.
    The request is a wish, the salon confirms by phone, so no availability is checked here: closed days,
    public holidays and past times are blocked. */
@@ -8,11 +9,13 @@
   var form = document.getElementById('booking');
   if (!HL || !form) return;
 
+  var MONTHS_SHORT = ['Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni', 'Juli', 'Aug.', 'Sep.', 'Okt.', 'Nov.', 'Dez.'];
   var MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
   var STEP = 30;          // minutes between slots
   var LAST_BEFORE = 60;   // the last slot starts this long before closing
   var LEAD = 60;          // today: earliest slot is this far from now
   var WINDOW_DAYS = 90;   // how far ahead a day can be requested
+  var COLS = 4;           // slot columns: the grid is always filled to whole rows, so its lines stay closed
 
   var cal = form.querySelector('[data-cal]');
   var slots = form.querySelector('[data-slots]');
@@ -177,20 +180,33 @@
     // keep the time if it is still possible on the new day
     var possible = timesFor(d).some(function (s) { return s.ok && s.t === pickedTime; });
     if (!possible && pickedTime !== 'flexibel') setTime('');
-    renderSlots();
+    renderSlots(true);
     clearError(cal);
     changed();
+    // narrow modal: the times sit under the calendar, bring them into view
+    if (slots.offsetTop > cal.offsetTop + 8 && slots.scrollIntoView) {
+      var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      slots.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
+    }
   }
 
-  /* ---------- Slots ---------- */
-  function renderSlots() {
+  /* ---------- Slots ----------
+     Before a day is picked the times of the next open day are shown switched off, so the step keeps its shape;
+     a click on a day switches its times on. */
+  function renderSlots(fresh) {
     slots.textContent = '';
+    var head = el('div', 'slots__head');
+    head.appendChild(el('span', 'slots__k', 'Uhrzeit'));
+    head.appendChild(el('span', 'slots__day', picked ? HL.DAYS_SHORT[HL.isoDay(picked)] + ', ' + picked.getDate() + '. ' + MONTHS_SHORT[picked.getMonth()] : 'Erst einen Tag wählen'));
+    slots.appendChild(head);
+    slots.classList.toggle('is-off', !picked);
     var list = picked ? timesFor(picked) : timesFor(nextOpen()).map(function (s) { return { t: s.t, ok: false }; });
     list.forEach(function (s) {
       var b = el('button', 'slot', s.t);
       b.type = 'button';
       b.dataset.time = s.t;
       b.disabled = !s.ok;
+      if (picked) b.setAttribute('aria-label', s.t + ' Uhr' + (s.ok ? '' : ', vorbei'));
       b.setAttribute('aria-pressed', String(s.t === pickedTime));
       slots.appendChild(b);
     });
@@ -201,6 +217,16 @@
     flex.setAttribute('aria-label', 'Uhrzeit egal');
     flex.setAttribute('aria-pressed', String(pickedTime === 'flexibel'));
     slots.appendChild(flex);
+    for (var n = list.length + 1; n % COLS; n++) {
+      var blank = el('span', 'slot slot--blank');
+      blank.setAttribute('aria-hidden', 'true');
+      slots.appendChild(blank);
+    }
+    if (fresh) {
+      slots.classList.remove('is-fresh');
+      void slots.offsetWidth;   // restart the fade
+      slots.classList.add('is-fresh');
+    }
   }
   function nextOpen() {
     var d = new Date(today);
@@ -213,10 +239,10 @@
   function setTime(t) {
     pickedTime = t;
     inTime.value = t === 'flexibel' ? 'Uhrzeit flexibel' : (t ? t + ' Uhr' : '');
-    slots.querySelectorAll('.slot').forEach(function (b) { b.setAttribute('aria-pressed', String(!!t && b.dataset.time === t)); });
+    slots.querySelectorAll('button.slot').forEach(function (b) { b.setAttribute('aria-pressed', String(!!t && b.dataset.time === t)); });
   }
   slots.addEventListener('click', function (e) {
-    var b = e.target.closest('.slot');
+    var b = e.target.closest('button.slot');
     if (!b || b.disabled) return;
     setTime(b.dataset.time);
     clearError(slots);
