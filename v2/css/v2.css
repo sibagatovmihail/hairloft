@@ -437,17 +437,19 @@ h3 { font-size: var(--t-h3); line-height: 1.2; letter-spacing: -0.02em; }
 .green__list p { font-size: 0.9375rem; color: var(--ink-2); }
 .teaser {
   margin-top: 1rem; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 1.5rem; row-gap: 0.25rem;
-  padding: 1.5rem 1.75rem; background: var(--paper); transition: background-color 0.3s;
+  padding: 1.5rem 1.75rem; background: var(--paper); border: 1px solid var(--ink); transition: background-color 0.3s;
 }
 .teaser .eyebrow { grid-column: 1 / -1; }
 .teaser__t { font-family: var(--f-display); font-size: var(--t-big); font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; }
 .teaser__d { grid-column: 1; font-size: 0.9375rem; color: var(--ink-2); }
-.teaser .i { grid-column: 2; grid-row: 2 / span 2; width: 1.5rem; height: 1.5rem; transition: transform 0.3s var(--ease); }
+/* the arrow sits in a brown square, the same height as every button: the card reads as a control */
+.teaser__go { grid-column: 2; grid-row: 2 / span 2; display: grid; place-items: center; width: var(--ctl-h); height: var(--ctl-h); background: var(--ink); color: var(--on-ink); }
+.teaser__go .i { width: 1.125rem; height: 1.125rem; transition: transform 0.3s var(--ease); }
 .teaser:active { background: var(--rose); }
-.teaser:active .i { transform: translateX(0.3rem); }
+.teaser:active .teaser__go .i { transform: translateX(0.25rem); }
 @media (hover: hover) {
   .teaser:hover { background: var(--rose); }
-  .teaser:hover .i { transform: translateX(0.3rem); }
+  .teaser:hover .teaser__go .i { transform: translateX(0.25rem); }
 }
 
 /* ---------- Stimmen: one review at a time, all in one grid area (the height never changes) ---------- */
@@ -476,7 +478,12 @@ h3 { font-size: var(--t-h3); line-height: 1.2; letter-spacing: -0.02em; }
 .visit__c .link { align-self: flex-start; margin-top: auto; }
 
 /* ---------- Closing call to action: the rose band (the brown footer slides over it) ---------- */
-.cta { position: relative; z-index: 1; background: var(--rose); padding-block: var(--section); }
+/* one full screen, content centred below the fixed header. lvh (not --screen): main is pinned by its bottom
+   edge to the large viewport (v2.js), so with the iOS toolbar collapsed the band still fills the whole screen */
+.cta {
+  position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; background: var(--rose);
+  min-height: 100vh; min-height: 100lvh; padding-block: calc(var(--hdr-h) + 2.5rem) 2.5rem;
+}
 .cta__in { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1.75rem; }
 .cta h2 { font-size: clamp(2.25rem, 1.1rem + 4.4vw, 5.25rem); line-height: 1.02; }
 .cta .eyebrow, .cta .note, .cta .lead { color: var(--ink); }
@@ -518,6 +525,30 @@ h3 { font-size: var(--t-h3); line-height: 1.2; letter-spacing: -0.02em; }
 .draft-tag__ver a:active { background: var(--ink-2); }
 @media (hover: hover) { .draft-tag__ver a:hover { background: var(--ink-2); } }
 html.nav-open .draft-tag { display: none; }
+
+/* the request button leaves the header once the hero is behind (body.past-hero, v2.js) and waits in the
+   bottom right corner as a calendar square (body.show-fab). Before the rose band and the brown footer the
+   square goes again: the band has its own button, and brown never sits on brown. */
+.hdr__r { clip-path: inset(-1rem -0.5rem -1rem -1rem); }
+.hdr__r .btn--sm { transition: background-color 0.3s, color 0.3s, border-color 0.3s, margin-left 0.5s var(--ease), opacity 0.3s, visibility 0s; }
+body.past-hero .hdr__r .btn--sm {
+  margin-left: calc(var(--hdr-btn, 0px) * -1); opacity: 0; visibility: hidden;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s, margin-left 0.5s var(--ease), opacity 0.3s, visibility 0s linear 0.5s;
+}
+.fab {
+  position: fixed; right: max(0.75rem, env(safe-area-inset-right)); bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)); z-index: 70;
+  display: grid; place-items: center; width: var(--ctl-h); height: var(--ctl-h);
+  background: var(--ink); color: var(--on-ink);
+  opacity: 0; visibility: hidden; transform: translateY(1rem);
+  transition: opacity 0.35s, transform 0.5s var(--ease), visibility 0s linear 0.5s, background-color 0.3s, color 0.3s;
+}
+.fab .i { width: 1.375rem; height: 1.375rem; }
+body.show-fab .fab { opacity: 1; visibility: visible; transform: none; transition: opacity 0.35s, transform 0.5s var(--ease), visibility 0s, background-color 0.3s, color 0.3s; }
+.fab:active { background: var(--rose); color: var(--ink); }
+@media (hover: hover) { .fab:hover { background: var(--rose); color: var(--ink); } }
+html.nav-open .fab { opacity: 0; visibility: hidden; }
+/* the narrowest phones: the draft tag is wider than the room left of the square, so the square stands above it */
+@media (max-width: 22.4375rem) { .fab { bottom: calc(3.25rem + env(safe-area-inset-bottom, 0px)); } }
 
 /* ---------- Karriere, Termin ---------- */
 .perks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--ink); }

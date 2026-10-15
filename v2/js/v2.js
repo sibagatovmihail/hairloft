@@ -186,6 +186,18 @@
     });
   });
 
+  /* ---------- The request button: in the header over the hero, then a calendar square in the corner ----------
+     --hdr-btn is the room the header button takes (with the gap before it), so the links close up smoothly. */
+  var fab = document.querySelector('.fab');
+  var hdrBtn = document.querySelector('.hdr__r .btn--sm');
+  var fabEnd = document.querySelector('main > .cta') || document.querySelector('.ftr');
+  function measureHdrBtn() {
+    if (!hdrBtn) return;
+    var prev = hdrBtn.previousElementSibling;
+    var gap = prev && prev.offsetWidth ? parseFloat(getComputedStyle(hdrBtn.parentNode).columnGap) || 0 : 0;
+    root.style.setProperty('--hdr-btn', (hdrBtn.offsetWidth + gap) + 'px');
+  }
+
   /* ---------- Scroll-driven values ---------- */
   var drifts = reduced ? [] : [].slice.call(document.querySelectorAll('img[data-drift]'));
   var ticking = false;
@@ -195,6 +207,12 @@
     var y = window.scrollY, V = window.innerHeight;
     if (hdr) hdr.classList.toggle('is-scrolled', y > 8);
     if (heroIn && !reduced) heroIn.style.setProperty('--cover', clamp(y / (hero.offsetHeight || V), 0, 1).toFixed(3));
+    if (fab) {
+      var past = y > (hero ? hero.offsetHeight : V) * 0.4;
+      var end = fabEnd && fabEnd.getBoundingClientRect().top < V * 0.85;
+      body.classList.toggle('past-hero', past);
+      body.classList.toggle('show-fab', past && !end);
+    }
     drifts.forEach(function (img) {
       var r = img.parentNode.getBoundingClientRect();
       if (r.bottom < 0 || r.top > V) return;
@@ -241,6 +259,7 @@
     resizeT = window.setTimeout(function () {
       splitAll();
       layoutTail();
+      measureHdrBtn();
       if (lenis) lenis.resize();
       requestTick();
     }, 120);
@@ -251,6 +270,7 @@
     splitAll();
     startReveals();
     layoutTail();
+    measureHdrBtn();
     requestTick();
   }
   var faceReady = document.fonts && document.fonts.load ? document.fonts.load('600 48px "HL Sans"') : Promise.resolve();
@@ -260,6 +280,6 @@
   if (document.fonts && document.fonts.addEventListener) {
     document.fonts.addEventListener('loadingdone', function () { if (fine) splitAll(); layoutTail(); });
   }
-  window.addEventListener('load', function () { if (fine) splitAll(); layoutTail(); requestTick(); });
+  window.addEventListener('load', function () { if (fine) splitAll(); layoutTail(); measureHdrBtn(); requestTick(); });
   window.addEventListener('pageshow', function (e) { if (e.persisted) requestTick(); });
 })();
